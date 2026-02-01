@@ -1,22 +1,37 @@
 package handlers
 
 import (
+	"io"
 	"net/http"
-	"github.com/go-chi/chi/v5"
+	"github.com/angelperez0709/markdown-app/internal/services"
 )
 
-func CheckGrammarHandler(writer http.ResponseWriter, request *http.Request) {
-	writer.Write([]byte("Get Markdown Handler"))
-}
-func ListAllMarkdownsHandler(writer http.ResponseWriter, request *http.Request) {
+func MakeUploadMarkdownHandler(service *services.MarkdownService) http.HandlerFunc {
+    return func(writer http.ResponseWriter, request *http.Request) {
+        title := request.FormValue("title")
+        
+        file, _, err := request.FormFile("markdown")
+        if err != nil {
+            http.Error(writer, "Markdown file is required", http.StatusBadRequest)
+            return
+        }
+        defer file.Close()
 
-}
-func UploadMarkdownHandler(writer http.ResponseWriter, request *http.Request) {
+        markdownContent, err := io.ReadAll(file)
+        if err != nil {
+            http.Error(writer, "Error reading file", http.StatusInternalServerError)
+            return
+        }
 
-}
+        noteID, err := service.SaveNote(title, markdownContent)
+        if err != nil {
+            http.Error(writer, err.Error(), http.StatusInternalServerError)
+            return
+        }
 
-func GetNoteRenderHandler(writer http.ResponseWriter, request *http.Request) {
-	id := chi.URLParam(request, "id")
-	writer.Write([]byte("Get Note Render Handler for ID: " + id))
-
+        writer.Header().Set("Content-Type", "application/json")
+        writer.WriteHeader(http.StatusCreated)
+        
+        writer.Write([]byte(`{"id": ` + string(rune(noteID)) + `, "message": "Note saved successfully"}`))
+    }
 }
