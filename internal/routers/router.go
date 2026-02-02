@@ -10,7 +10,7 @@ func SetupRoutes(r *chi.Mux, service *services.MarkdownService) {
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Get("/check-grammar", handlers.CheckGrammarHandler)
 		r.Get("/notes/{id}/render", handlers.GetNoteRenderHandler)
-		r.Get("/notes",handlers.ListAllMarkdownsHandler)
+		r.Get("/notes",handlers.ListAllMarkdownsHandler(service))
 		r.Get("/html/{id}",handlers.GetHTMLHandler)
 		r.Post("/notes", handlers.MakeUploadMarkdownHandler(service))
 	})

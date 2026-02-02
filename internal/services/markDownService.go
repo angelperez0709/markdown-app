@@ -50,7 +50,6 @@ func (s *MarkdownService) SaveNote(title string, markdownContent []byte) (int64,
 }
 
 func (s *MarkdownService) saveMarkdownToFile(title string, content []byte) (string, error) {
-	// Implement file saving logic here
 	markdownFolder := "markdowns"
 	if err := os.MkdirAll(markdownFolder, 0755); err != nil {
 		return "", fmt.Errorf("failed to create directory: %w", err)
@@ -67,7 +66,6 @@ func (s *MarkdownService) saveMarkdownToFile(title string, content []byte) (stri
 
 
 func (s *MarkdownService) convertMarkdownToHTML(markdown []byte) ([]byte, error) {
-	// Configure goldmark with safe settings
 	md := goldmark.New(
 		goldmark.WithExtensions(
 			extension.GFM,           
@@ -101,4 +99,12 @@ func (s *MarkdownService) convertMarkdownToHTML(markdown []byte) ([]byte, error)
 	sanitizedHTML := policy.SanitizeBytes(buf.Bytes())
 
 	return sanitizedHTML, nil
+}
+
+func (s *MarkdownService) ListAllNotes() ([]repository.Note, error) {
+	notes, err := s.repository.GetAllNotes()
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve notes: %w", err)
+	}
+	return notes, nil
 }

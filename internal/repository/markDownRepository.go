@@ -25,3 +25,35 @@ func (r *MarkdownRepository) SaveNote(title string, filePath string, htmlContent
 	
 	return id, nil
 }
+
+func (r *MarkdownRepository) GetAllNotes() ([]Note, error) {
+	query := `SELECT id, title FROM notes`
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query notes: %w", err)
+	}
+	defer rows.Close()
+
+	var notes []Note
+	for rows.Next() {
+		var note Note
+		if err := rows.Scan(&note.Id, &note.Title); err != nil {
+			return nil, fmt.Errorf("failed to scan note: %w", err)
+		}
+		notes = append(notes, note)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("row iteration error: %w", err)
+	}
+
+	return notes, nil
+}
+
+type Note struct {
+	Id          int64
+	Title       string
+	file_path    string
+	html_content []byte
+	created_at   time.Time
+}

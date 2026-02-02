@@ -10,9 +10,7 @@ func CheckGrammarHandler(writer http.ResponseWriter, request *http.Request) {
 	writer.Write([]byte("Get Markdown Handler"))
 }
 
-func ListAllMarkdownsHandler(writer http.ResponseWriter, request *http.Request) {
-	writer.Write([]byte("List All Markdowns"))
-}
+
 
 func GetNoteRenderHandler(writer http.ResponseWriter, request *http.Request) {
 	id := chi.URLParam(request, "id")
