@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/angelperez0709/markdown-app/internal/services"
+	"github.com/go-chi/chi/v5"
 )
 
 func MakeUploadMarkdownHandler(service *services.MarkdownService) http.HandlerFunc {
@@ -56,5 +57,52 @@ func ListAllMarkdownsHandler(service *services.MarkdownService) http.HandlerFunc
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write(jsonData)
+	}
+}
+
+func GetHTMLHandler(service *services.MarkdownService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := chi.URLParam(r, "id")
+		if id == "" {
+			http.Error(w, "ID parameter is required", http.StatusBadRequest)
+			return
+		}
+
+		htmlContent, err := service.GetHTMLContentByID(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(http.StatusOK)
+		w.Write(htmlContent)
+	}
+}
+
+func CheckGrammarHandler(service *services.MarkdownService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		file, _, err := r.FormFile("markdown")
+		if err != nil {
+			http.Error(w, "Markdown file is required", http.StatusBadRequest)
+			return
+		}
+		defer file.Close()
+
+		markdownContent, err := io.ReadAll(file)
+		if err != nil {
+			http.Error(w, "Error reading file", http.StatusInternalServerError)
+			return
+		}
+
+		correctedContent, err := service.CheckGrammar(markdownContent)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(correctedContent)
 	}
 }
