@@ -2,12 +2,14 @@
 
 Simple API for uploading Markdown, rendering HTML, listing notes, and checking grammar.
 
+Based on this roadmap project: https://roadmap.sh/projects/markdown-note-taking-app
+
 ## Requirements
 - Go 1.25+
 - PostgreSQL
 
 ## Configuration
-Set these environment variables (see [`config.Load`](internal/config/config.go) in [internal/config/config.go](internal/config/config.go)):
+Set these environment variables (see [`config.Load`](internal/config/config.go) in [internal/config/config.go]):
 - `APP_ADDR` (e.g. `8080`)
 - `DB_HOST`
 - `DB_PORT`
